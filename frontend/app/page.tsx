@@ -16,6 +16,7 @@ export default function Home() {
   const [message, setMessage] = useState<string>("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [joined, setJoined] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +73,12 @@ export default function Home() {
 
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") sendMessage();
+    // if (e.key === "Enter") sendMessage();
+    // Khi đang gõ tiếng Việt, không gửi
+    if (e.key === "Enter" && !isComposing) {
+      e.preventDefault(); // ngăn react xử lý Enter mặc định
+      sendMessage();
+    }
   };
 
   if (!joined) {
@@ -172,54 +178,6 @@ export default function Home() {
         </div>
 
         {/* Chat messages */}
-        {/* <div style={{
-          flex: 1,
-          padding: 20,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          overflowY: "auto",
-        }}>
-          {chat.map((msg, i) => {
-            const isMe = msg.author === username;
-            return (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: isMe ? "flex-end" : "flex-start",
-                  marginBottom: 8,
-                }}
-              >
-                <div style={{
-                  background: isMe ? "#4f46e5" : "#ff6b81",
-                  color: isMe ? "white" : "black",
-                  padding: "10px 15px",
-                  borderRadius: 20,
-                  maxWidth: "70%",
-                  wordBreak: "break-word",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                  fontSize: 14,
-                }}>
-                  {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>}
-                  <div>{msg.message}</div>
-                  {isMe ? (
-                    <div style={{ fontSize: 10, textAlign: 'right', marginTop: 4 }}>
-                      {msg.time}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: 10, textAlign: 'left', marginTop: 4 }}>
-                      {msg.time}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          <div ref={chatEndRef} />
-        </div> */}
-
-        {/* Chat messages */}
         <div style={{
           flex: 1,
           padding: 20,
@@ -310,6 +268,8 @@ export default function Home() {
             value={message}
             onChange={e => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
             placeholder={`Type your message...`}
             style={{
               flex: 1,
