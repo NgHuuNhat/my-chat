@@ -174,7 +174,7 @@ export default function Home() {
       <div style={{
         maxWidth: 600,
         width: "90%",
-        height: "90vh",
+        height: "97vh",
         margin: "auto",
         display: "flex",
         flexDirection: "column",
