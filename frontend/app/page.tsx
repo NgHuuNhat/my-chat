@@ -23,12 +23,14 @@ export default function Home() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+  // console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
 
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
   }, [joined]);
 
   useEffect(() => {
+    console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
     socket = io(NEXT_PUBLIC_SOCKET_URL!);
 
     socket.on("receive_message", (data: ChatMessage) => {
