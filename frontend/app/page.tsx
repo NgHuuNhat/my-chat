@@ -83,7 +83,7 @@ export default function Home() {
         color: "#fff",
       }}>
         <h1 style={{ fontSize: 48, fontWeight: "bold", marginBottom: 40, textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
-          Welcome to Chat
+          Welcome to Chat App
         </h1>
         <input
           ref={usernameRef}
@@ -127,9 +127,22 @@ export default function Home() {
 
   const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
 
-  //chat
+  //room chat
   return (
     <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}>
+      <div
+        style={{
+          position: 'absolute',
+          padding: '15px 20px',
+          margin: '10px',
+          backgroundColor: '#4338ca',
+          borderRadius: '20px',
+          color: '#fff',
+          fontWeight: 'bold',
+        }}
+      >
+        <h6>Welcome to Chat App, {username}!</h6>
+      </div>
       <div style={{
         height: "100vh",
         display: "flex",
@@ -149,11 +162,12 @@ export default function Home() {
           fontSize: 18,
           textAlign: 'center'
         }}>
-          {otherUsername}
+          {/* {otherUsername} */}
+          Chat App
         </div>
 
         {/* Chat messages */}
-        <div style={{
+        {/* <div style={{
           flex: 1,
           padding: 20,
           display: "flex",
@@ -182,7 +196,7 @@ export default function Home() {
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
                   fontSize: 14,
                 }}>
-                  {/* {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>} */}
+                  {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>}
                   <div>{msg.message}</div>
                   {isMe ? (
                     <div style={{ fontSize: 10, textAlign: 'right', marginTop: 4 }}>
@@ -198,7 +212,91 @@ export default function Home() {
             );
           })}
           <div ref={chatEndRef} />
+        </div> */}
+
+        {/* Chat messages */}
+        <div style={{
+          flex: 1,
+          padding: 20,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          overflowY: "auto",
+        }}>
+          {chat.map((msg, i) => {
+            const isMe = msg.author === username;
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: isMe ? "flex-end" : "flex-start",
+                  alignItems: "flex-end",
+                  marginBottom: 32,
+                }}
+              >
+                {/* Avatar cho người khác */}
+                {!isMe && (
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    backgroundColor: "#ff6b81",
+                    color: "black",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontWeight: "bold",
+                    marginRight: 8,
+                    fontSize: 12,
+                  }}>
+                    {/* {msg.author[0].toUpperCase()} */}
+                    {msg.author}
+                  </div>
+                )}
+
+                <div style={{
+                  background: isMe ? "#4f46e5" : "#e5e7eb",
+                  color: isMe ? "white" : "black",
+                  padding: "10px 15px",
+                  borderRadius: 20,
+                  maxWidth: "70%",
+                  wordBreak: "break-word",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                  fontSize: 14,
+                }}>
+                  {/* {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>} */}
+                  <div>{msg.message}</div>
+                  <div style={{ fontSize: 10, textAlign: isMe ? 'left' : 'left', marginTop: 4 }}>
+                    {msg.time}
+                  </div>
+                </div>
+
+                {/* Khoảng trống nhỏ cho tin nhắn của mình */}
+                {isMe && (
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    backgroundColor: "#4338ca",
+                    color: "#fff",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontWeight: "bold",
+                    marginLeft: 8,
+                    fontSize: 12,
+                  }}>
+                    {/* {msg.author[0].toUpperCase()} */}
+                    {msg.author}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div ref={chatEndRef} />
         </div>
+
 
         {/* Input */}
         <div style={{ display: "flex", padding: 10 }}>
