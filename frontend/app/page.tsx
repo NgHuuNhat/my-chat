@@ -21,6 +21,7 @@ export default function Home() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
   // console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
@@ -76,6 +77,26 @@ export default function Home() {
       sendMessage();
     }
   };
+
+  const handleScroll = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const atBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+    setIsAtBottom(atBottom); // dùng state để biết user đang ở cuối hay không
+  };
+
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  useEffect(() => {
+    if (isAtBottom) {
+      chatContainerRef.current?.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [chat]);
+
 
   if (!joined) {
     return (
@@ -175,14 +196,19 @@ export default function Home() {
         </div>
 
         {/* Chat messages */}
-        <div style={{
-          flex: 1,
-          padding: 10,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          overflowY: "auto",
-        }}>
+        <div
+          ref={chatContainerRef}
+          style={{
+            flex: 1,
+            padding: 10,
+            display: "flex",
+            flexDirection: "column",
+            // justifyContent: "flex-end",
+            overflowY: "auto",
+            // backgroundColor: 'red'
+          }}
+          onScroll={handleScroll}
+        >
           {chat.map((msg, i) => {
             const isMe = msg.author === username;
             return (
