@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: `.env.${process.env.NODE_ENV || 'local'}` });
 
 const FRONTEND_URL = process.env.FRONTEND_URL
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 4000
 
 // 🔹 Kiểm tra giá trị env
 console.log("FRONTEND_URL =", FRONTEND_URL);
