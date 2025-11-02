@@ -276,6 +276,7 @@ export default function Home() {
               border: "1px solid #4338ca",
               outline: "none",
               fontSize: 16,
+              color: 'black',
             }}
           />
           <button
