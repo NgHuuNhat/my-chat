@@ -31,6 +31,7 @@ export default function Home() {
   useEffect(() => {
     // socket = io("http://localhost:4000");
     socket = io(NEXT_PUBLIC_SOCKET_URL);
+    console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
 
     socket.on("receive_message", (data: ChatMessage) => {
       setChat(prev => [...prev, data]);
