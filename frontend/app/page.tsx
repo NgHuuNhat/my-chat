@@ -174,10 +174,11 @@ export default function Home() {
     <div style={{
       height: '100dvh',
       background: "linear-gradient(135deg, #667eea, #764ba2)",
-      minHeight: "100vh",
       padding: 10,
       boxSizing: "border-box",
-      // backgroundColor: 'yellow'
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
     }}>
       {/* <div
         style={{
