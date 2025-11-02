@@ -178,7 +178,7 @@ export default function Home() {
         margin: "auto",
         display: "flex",
         flexDirection: "column",
-        background: "#f3f4f6",
+        // background: "#f3f4f6",
         borderRadius: 20,
         overflow: "hidden",
         boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
@@ -284,7 +284,7 @@ export default function Home() {
           padding: 10,
           flexWrap: "wrap",
           gap: 10,
-          background: "#fff",
+          // background: "#fff",
         }}>
           <input
             ref={inputRef}
