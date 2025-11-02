@@ -195,7 +195,7 @@ export default function Home() {
 
       <div style={{
         maxWidth: 600,
-        width: "90%",
+        width: "100%",
         height: "97dvh",
         margin: "auto",
         display: "flex",
