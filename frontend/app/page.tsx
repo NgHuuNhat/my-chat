@@ -6,7 +6,7 @@ import { io, Socket } from "socket.io-client";
 interface ChatMessage {
   message: string;
   author: string;
-  time: string; // thời gian đầy đủ
+  time: string;
 }
 
 let socket: Socket;
@@ -22,17 +22,14 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-  console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
+  const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
   }, [joined]);
 
   useEffect(() => {
-    // socket = io("http://localhost:4000");
-    socket = io(NEXT_PUBLIC_SOCKET_URL);
-    console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
+    socket = io(NEXT_PUBLIC_SOCKET_URL!);
 
     socket.on("receive_message", (data: ChatMessage) => {
       setChat(prev => [...prev, data]);
@@ -71,18 +68,14 @@ export default function Home() {
     inputRef.current?.focus();
   };
 
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // if (e.key === "Enter") sendMessage();
-    // Khi đang gõ tiếng Việt, không gửi
     if (e.key === "Enter" && !isComposing) {
-      e.preventDefault(); // ngăn react xử lý Enter mặc định
+      e.preventDefault();
       sendMessage();
     }
   };
 
   if (!joined) {
-    //home
     return (
       <div style={{
         height: "100vh",
@@ -93,7 +86,7 @@ export default function Home() {
         flexDirection: "column",
         color: "#fff",
       }}>
-        <h1 style={{ fontSize: 48, fontWeight: "bold", marginBottom: 40, textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+        <h1 style={{ fontSize: "clamp(24px, 6vw, 48px)", fontWeight: "bold", marginBottom: 40, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
           Welcome to Chat App
         </h1>
         <input
@@ -107,7 +100,8 @@ export default function Home() {
             borderRadius: 12,
             border: "none",
             fontSize: 18,
-            width: 300,
+            width: "90%",
+            maxWidth: 400,
             marginBottom: 20,
             outline: "none",
             boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
@@ -138,10 +132,9 @@ export default function Home() {
 
   const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
 
-  //room chat
   return (
-    <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}>
-      <div
+    <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", minHeight: "100vh", padding: 10, boxSizing: "border-box" }}>
+      {/* <div
         style={{
           position: 'absolute',
           padding: '15px 20px',
@@ -153,34 +146,36 @@ export default function Home() {
         }}
       >
         <h6>Welcome to Chat App, {username}!</h6>
-      </div>
+      </div> */}
+
       <div style={{
-        height: "100vh",
+        maxWidth: 600,
+        width: "90%",
+        height: "90vh",
+        margin: "auto",
         display: "flex",
         flexDirection: "column",
         background: "#f3f4f6",
-        width: '600px',
-        margin: 'auto',
+        borderRadius: 20,
+        overflow: "hidden",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
       }}>
         {/* Top bar */}
         <div style={{
           padding: '15px 20px',
           background: "#ff6b81",
-          borderRadius: 20,
-          margin: 10,
           color: 'black',
           fontWeight: 'bold',
           fontSize: 18,
           textAlign: 'center'
         }}>
-          {/* {otherUsername} */}
           Chat App
         </div>
 
         {/* Chat messages */}
         <div style={{
           flex: 1,
-          padding: 20,
+          padding: 10,
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-end",
@@ -195,10 +190,9 @@ export default function Home() {
                   display: "flex",
                   justifyContent: isMe ? "flex-end" : "flex-start",
                   alignItems: "flex-end",
-                  marginBottom: 32,
+                  marginBottom: 16,
                 }}
               >
-                {/* Avatar cho người khác */}
                 {!isMe && (
                   <div style={{
                     width: 40,
@@ -213,8 +207,7 @@ export default function Home() {
                     marginRight: 8,
                     fontSize: 12,
                   }}>
-                    {/* {msg.author[0].toUpperCase()} */}
-                    {msg.author}
+                    {msg.author[0].toUpperCase()}
                   </div>
                 )}
 
@@ -225,17 +218,15 @@ export default function Home() {
                   borderRadius: 20,
                   maxWidth: "70%",
                   wordBreak: "break-word",
+                  fontSize: "clamp(12px, 2.5vw, 14px)",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                  fontSize: 14,
                 }}>
-                  {/* {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>} */}
                   <div>{msg.message}</div>
-                  <div style={{ fontSize: 10, textAlign: isMe ? 'left' : 'left', marginTop: 4 }}>
+                  <div style={{ fontSize: 10, marginTop: 4 }}>
                     {msg.time}
                   </div>
                 </div>
 
-                {/* Khoảng trống nhỏ cho tin nhắn của mình */}
                 {isMe && (
                   <div style={{
                     width: 40,
@@ -250,8 +241,7 @@ export default function Home() {
                     marginLeft: 8,
                     fontSize: 12,
                   }}>
-                    {/* {msg.author[0].toUpperCase()} */}
-                    {msg.author}
+                    {msg.author[0].toUpperCase()}
                   </div>
                 )}
               </div>
@@ -260,9 +250,14 @@ export default function Home() {
           <div ref={chatEndRef} />
         </div>
 
-
         {/* Input */}
-        <div style={{ display: "flex", padding: 10 }}>
+        <div style={{
+          display: "flex",
+          padding: 10,
+          flexWrap: "wrap",
+          gap: 10,
+          background: "#fff",
+        }}>
           <input
             ref={inputRef}
             value={message}
@@ -270,9 +265,10 @@ export default function Home() {
             onKeyDown={handleKeyPress}
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
-            placeholder={`Type your message...`}
+            placeholder="Type your message..."
             style={{
               flex: 1,
+              minWidth: 0,
               padding: 12,
               borderRadius: 20,
               border: "1px solid #4338ca",
@@ -283,7 +279,6 @@ export default function Home() {
           <button
             onClick={sendMessage}
             style={{
-              marginLeft: 10,
               padding: "12px 20px",
               borderRadius: 20,
               border: "none",
@@ -291,10 +286,7 @@ export default function Home() {
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
-              transition: "all 0.3s ease",
             }}
-            onMouseOver={e => (e.currentTarget.style.background = "#4338ca")}
-            onMouseOut={e => (e.currentTarget.style.background = "#ff6b81")}
           >
             Send
           </button>
