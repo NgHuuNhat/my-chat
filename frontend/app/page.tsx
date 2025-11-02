@@ -17,6 +17,7 @@ export default function Home() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [joined, setJoined] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
+  const [height, setHeight] = useState("100dvh");
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,6 +26,16 @@ export default function Home() {
 
   const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
   // console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
+
+  useEffect(() => {
+    const updateHeight = () => {
+      setHeight(`${window.innerHeight}px`);
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
@@ -99,15 +110,18 @@ export default function Home() {
 
 
   if (!joined) {
+    //home
     return (
       <div style={{
-        height: "100vh",
+        height: "100dvh",
+        // height,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         background: "linear-gradient(135deg, #667eea, #764ba2)",
         flexDirection: "column",
         color: "#fff",
+        // backgroundColor: 'red'
       }}>
         <h1 style={{ fontSize: "clamp(24px, 6vw, 48px)", fontWeight: "bold", marginBottom: 40, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
           Welcome to Chat App
@@ -155,8 +169,16 @@ export default function Home() {
 
   const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
 
+  //chat
   return (
-    <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", minHeight: "100vh", padding: 10, boxSizing: "border-box" }}>
+    <div style={{
+      height: '100dvh',
+      background: "linear-gradient(135deg, #667eea, #764ba2)",
+      minHeight: "100vh",
+      padding: 10,
+      boxSizing: "border-box",
+      // backgroundColor: 'yellow'
+    }}>
       {/* <div
         style={{
           position: 'absolute',
@@ -174,7 +196,7 @@ export default function Home() {
       <div style={{
         maxWidth: 600,
         width: "90%",
-        height: "97vh",
+        height: "97dvh",
         margin: "auto",
         display: "flex",
         flexDirection: "column",
