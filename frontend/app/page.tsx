@@ -6,6 +6,7 @@ import { io, Socket } from "socket.io-client";
 interface ChatMessage {
   message: string;
   author: string;
+  time: string; // thời gian đầy đủ
 }
 
 let socket: Socket;
@@ -20,12 +21,10 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto focus username khi load Home
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
   }, [joined]);
 
-  // Kết nối socket
   useEffect(() => {
     socket = io("http://localhost:4000");
 
@@ -38,7 +37,6 @@ export default function Home() {
     };
   }, []);
 
-  // Scroll xuống cuối mỗi khi có tin nhắn mới
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
@@ -49,19 +47,31 @@ export default function Home() {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hh = now.getHours().toString().padStart(2, "0");
+    const mm = now.getMinutes().toString().padStart(2, "0");
+    const dd = now.getDate().toString().padStart(2, "0");
+    const mmth = (now.getMonth() + 1).toString().padStart(2, "0");
+    const yyyy = now.getFullYear();
+    return `${hh}:${mm} ${dd}/${mmth}/${yyyy}`;
+  };
+
   const sendMessage = () => {
     if (!message) return;
-    socket.emit("send_message", { message, author: username });
+    const msgData: ChatMessage = { message, author: username, time: getCurrentTime() };
+    socket.emit("send_message", msgData);
     setMessage("");
     inputRef.current?.focus();
   };
+
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") sendMessage();
   };
 
   if (!joined) {
-    // Home page
+    //home
     return (
       <div style={{
         height: "100vh",
@@ -115,9 +125,9 @@ export default function Home() {
     );
   }
 
-  // Chat page
   const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
 
+  //chat
   return (
     <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)" }}>
       <div style={{
@@ -128,15 +138,16 @@ export default function Home() {
         width: '600px',
         margin: 'auto',
       }}>
-        {/* Top bar hiển thị username người kia */}
+        {/* Top bar */}
         <div style={{
           padding: '15px 20px',
           background: "#ff6b81",
           borderRadius: 20,
           margin: 10,
-          color: '#fff',
+          color: 'black',
           fontWeight: 'bold',
           fontSize: 18,
+          textAlign: 'center'
         }}>
           {otherUsername}
         </div>
@@ -162,15 +173,26 @@ export default function Home() {
                 }}
               >
                 <div style={{
-                  background: isMe ? "#4f46e5" : "#e5e7eb",
+                  background: isMe ? "#4f46e5" : "#ff6b81",
                   color: isMe ? "white" : "black",
                   padding: "10px 15px",
                   borderRadius: 20,
                   maxWidth: "70%",
                   wordBreak: "break-word",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                  fontSize: 14,
                 }}>
+                  {/* {!isMe && <b style={{ fontSize: 12 }}>{msg.author}</b>} */}
                   <div>{msg.message}</div>
+                  {isMe ? (
+                    <div style={{ fontSize: 10, textAlign: 'right', marginTop: 4 }}>
+                      {msg.time}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 10, textAlign: 'left', marginTop: 4 }}>
+                      {msg.time}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -185,12 +207,12 @@ export default function Home() {
             value={message}
             onChange={e => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder={`${username} type your message...`}
+            placeholder={`Type your message...`}
             style={{
               flex: 1,
               padding: 12,
               borderRadius: 20,
-              border: "1px solid #ccc",
+              border: "1px solid #4338ca",
               outline: "none",
               fontSize: 16,
             }}
@@ -202,7 +224,7 @@ export default function Home() {
               padding: "12px 20px",
               borderRadius: 20,
               border: "none",
-              background: "#ff6b81",
+              background: "#4338ca",
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
