@@ -49,10 +49,13 @@ io.on("connection", (socket: Socket) => {
     io.emit("receive_message", data);
 
     // ✅ If user message starts with @bot or bot is mentioned → reply
-    if (
-      data.message.toLowerCase().startsWith("@bot") ||
-      data.message.includes("bot")
-    ) {
+    const keywords = ["@bot", "bot", "mày", "bạn", "m", "b", "cậu", "c", "Bot", "bro", "Bro"];
+
+    const isMentioned = keywords.some(keyword =>
+      data.message.toLowerCase().includes(keyword)
+    );
+
+    if (isMentioned) {
       try {
         const prompt = data.message.replace("@bot", "").trim();
         const res = await model.generateContent(prompt);

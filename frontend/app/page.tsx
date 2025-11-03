@@ -265,6 +265,7 @@ export default function Home() {
           background: botOnline ? "#10b981" : "#6b7280",
           color: "white"
         }}>
+          {`Hello, ${username}!`}
           {botOnline ? (
             <>
               <img
@@ -279,7 +280,8 @@ export default function Home() {
                 }}
               />
               <span>
-                <b>Bot</b> đang online - thêm từ <b style={{ color: "yellow" }}>bot</b> trong tin nhắn để chat với <b>Bot</b>
+                <b>Bot</b> đang online
+                {/* - thêm từ <b style={{ color: "yellow" }}>bot</b> trong tin nhắn để chat với <b>Bot</b> */}
               </span>
             </>
           ) : (
@@ -296,7 +298,7 @@ export default function Home() {
                 }}
               />
               <span>
-                <b>Bot</b> đang offline - nhắn <b style={{ color: "yellow" }}>bot</b> để gọi <b>Bot</b>
+                <b>Bot</b> đang offline - nhấn <b style={{ color: "yellow" }}>bot</b> để gọi <b>Bot</b>
               </span>
             </>
           )}
