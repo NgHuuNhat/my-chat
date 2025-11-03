@@ -297,7 +297,7 @@ export default function Home() {
           opacity: 0.8
         }}>
           <Link
-            href={NEXT_PUBLIC_FRONTEND_URL || "https://localhost:3000"}
+            href={NEXT_PUBLIC_FRONTEND_URL!}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#fff" }}
