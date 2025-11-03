@@ -29,6 +29,7 @@ interface ChatMessage {
   message: string;
   author: string;
   time: string;
+  botStatus?: boolean;
 }
 
 const io = new Server(server, {
@@ -41,23 +42,47 @@ const io = new Server(server, {
 // ✅ Gemini instance
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+let botStatus: boolean = false;
 
 io.on("connection", (socket: Socket) => {
   console.log("✅ User connected:", socket.id);
 
   socket.on("send_message", async (data: ChatMessage) => {
+    const msg = data.message.toLowerCase();
+
     io.emit("receive_message", data);
 
-    // ✅ If user message starts with @bot or bot is mentioned → reply
-    const keywords = ["@bot", "bot", "mày", "bạn", "m", "b", "cậu", "c", "Bot", "bro", "Bro"];
+    // Lệnh tắt bot
+    if (msg.startsWith("off")) {
+      botStatus = false;
+      io.emit("receive_message", {
+        message: "🤖 Bot đã offline.",
+        author: "Bot",
+        time: data.time,
+        botStatus: false,
+      });
+      return;
+    }
 
-    const isMentioned = keywords.some(keyword =>
-      data.message.toLowerCase().includes(keyword)
-    );
+    // Lệnh bật bot
+    if (msg.startsWith("on")) {
+      botStatus = true;
+      io.emit("receive_message", {
+        message: "🤖 Bot đã online.",
+        author: "Bot",
+        time: data.time,
+        botStatus: true,
+      });
+      return;
+    }
 
-    if (isMentioned) {
+    // --- Nếu bot offline → không reply ---
+    //  msg.includes("bot")
+    if (botStatus === false) {
+      return
+    } else if (botStatus === true && msg.includes("bot")) {
       try {
-        const prompt = data.message.replace("@bot", "").trim();
+        const prompt = data.message.replace("bot", "").trim();
         const res = await model.generateContent(prompt);
         const reply = res.response.text();
 
@@ -65,6 +90,7 @@ io.on("connection", (socket: Socket) => {
           message: reply,
           author: "Bot",
           time: data.time,
+          botStatus: true,
         };
 
         io.emit("receive_message", botMessage);
@@ -73,9 +99,11 @@ io.on("connection", (socket: Socket) => {
           message: "❌ Bot lỗi, thử lại sau.",
           author: "Bot",
           time: data.time,
+          botStatus: true,
         });
       }
     }
+
   });
 
   socket.on("disconnect", () => {

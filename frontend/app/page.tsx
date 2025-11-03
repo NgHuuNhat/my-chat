@@ -8,6 +8,7 @@ interface ChatMessage {
   message: string;
   author: string;
   time: string;
+  botStatus?: boolean;
 }
 
 let socket: Socket;
@@ -42,7 +43,13 @@ export default function Home() {
     });
 
     socket.on("receive_message", (data: ChatMessage) => {
-      if (data.author === "Bot") setBotOnline(true);
+      // Cập nhật trạng thái bot nếu có
+      if (data.botStatus !== undefined) {
+        setBotOnline(data.botStatus);
+      }
+      // if (data.author == 'Bot') {
+      //   setBotOnline(true);
+      // }
       setChat((prev) => [...prev, data]);
     });
 
@@ -202,7 +209,7 @@ export default function Home() {
     );
   }
 
-  const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
+  // const otherUsername = chat.find(msg => msg.author !== username)?.author || "Someone";
 
   //chat
   return (
@@ -242,7 +249,7 @@ export default function Home() {
         boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
       }}>
         {/* Top bar */}
-        <div style={{
+        {/* <div style={{
           padding: '15px 20px',
           background: "#ff6b81",
           color: 'black',
@@ -251,7 +258,7 @@ export default function Home() {
           textAlign: 'center'
         }}>
           Chat App
-        </div>
+        </div> */}
         {/* Bot status pill */}
         <div style={{
           padding: "6px 12px",
@@ -259,49 +266,39 @@ export default function Home() {
           borderRadius: 9999,
           fontSize: 12,
           fontWeight: 500,
-          display: "inline-flex",
+          // display: "inline-flex",
           gap: 6,
           alignItems: "center",
-          background: botOnline ? "#10b981" : "#6b7280",
+          background: botOnline ? "#10b981" : "#ff6b81",
           color: "white"
         }}>
-          {`Hello, ${username}!`}
-          {botOnline ? (
-            <>
-              <img
-                src={robotAvatar}
-                alt="bot avatar"
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  background: "#fff",
-                }}
-              />
+          <div style={{ textAlign: 'center' }}>
+            <span>Hello, <b>{username}</b>!</span>
+            {/* {`Hello, ${username}!`} */}
+          </div>
+          <div style={{ display: "inline-flex", }}>
+            <img
+              src={robotAvatar}
+              alt="bot avatar"
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                objectFit: "cover",
+                background: "#fff",
+                margin: '0 2px'
+              }}
+            />
+            {botOnline ? (
               <span>
-                <b>Bot</b> đang online
-                {/* - thêm từ <b style={{ color: "yellow" }}>bot</b> trong tin nhắn để chat với <b>Bot</b> */}
+                <b>Bot</b> đang online - nhấn <b style={{ color: "yellow" }}>off</b> để tắt <b>Bot</b> + thêm từ <b style={{ color: "yellow" }}>bot</b> trong tin nhắn để chat với <b>Bot</b>
               </span>
-            </>
-          ) : (
-            <>
-              <img
-                src={robotAvatar}
-                alt="bot avatar"
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  background: "#fff",
-                }}
-              />
+            ) : (
               <span>
-                <b>Bot</b> đang offline - nhấn <b style={{ color: "yellow" }}>bot</b> để gọi <b>Bot</b>
+                <b>Bot</b> đang offline - nhấn <b style={{ color: "yellow" }}>on</b> để gọi <b>Bot</b>
               </span>
-            </>
-          )}
+            )}
+          </div>
         </div>
 
         <div style={{
