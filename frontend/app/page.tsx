@@ -296,12 +296,24 @@ export default function Home() {
           color: "#f1f5f9",
           opacity: 0.8
         }}>
-          <Link
+          {/* <Link
             href={NEXT_PUBLIC_FRONTEND_URL!}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#fff" }}
-          >+ thêm người chat, click me!</Link>
+          >+ thêm người chat, click me!</Link> */}
+          {NEXT_PUBLIC_FRONTEND_URL ? (
+            <Link
+              href={NEXT_PUBLIC_FRONTEND_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#fff" }}
+            >
+              + thêm người chat, click me!
+            </Link>
+          ) : (
+            <span style={{ color: "#fff" }}>Link chưa được cấu hình</span>
+          )}
         </div>
 
 
