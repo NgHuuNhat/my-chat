@@ -18,8 +18,8 @@ export default function Home() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [joined, setJoined] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
-  // const [height, setHeight] = useState("100dvh");
   const [botOnline, setBotOnline] = useState(false);
+  const [speakingMessage, setSpeakingMessage] = useState<string | null>(null);
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,34 +30,9 @@ export default function Home() {
   const NEXT_PUBLIC_FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
   const robotAvatar = "https://cdn-icons-png.flaticon.com/512/4712/4712100.png";
 
-  // console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
-
-  // useEffect(() => {
-  //   const updateHeight = () => {
-  //     setHeight(`${window.innerHeight}px`);
-  //   };
-
-  //   updateHeight();
-  //   window.addEventListener("resize", updateHeight);
-  //   return () => window.removeEventListener("resize", updateHeight);
-  // }, []);
-
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
   }, [joined]);
-
-  // useEffect(() => {
-  //   console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
-  //   socket = io(NEXT_PUBLIC_SOCKET_URL!);
-
-  //   socket.on("receive_message", (data: ChatMessage) => {
-  //     setChat(prev => [...prev, data]);
-  //   });
-
-  //   return () => {
-  //     socket.off("receive_message");
-  //   };
-  // }, []);
 
   useEffect(() => {
     console.log("NEXT_PUBLIC_SOCKET_URL", NEXT_PUBLIC_SOCKET_URL);
@@ -80,6 +55,19 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
+  useEffect(() => {
+    // Khi mount (bao gồm F5) → dừng tất cả tin nhắn đang đọc
+    stopSpeaking();
+  }, []);
+
+  const sendMessage = () => {
+    if (!message) return;
+    const msgData: ChatMessage = { message, author: username, time: getCurrentTime() };
+    socket.emit("send_message", msgData);
+    setMessage("");
+    inputRef.current?.focus();
+  };
+
   const joinChat = () => {
     if (!username) return;
     setJoined(true);
@@ -94,14 +82,6 @@ export default function Home() {
     const mmth = (now.getMonth() + 1).toString().padStart(2, "0");
     const yyyy = now.getFullYear();
     return `${hh}:${mm} ${dd}/${mmth}/${yyyy}`;
-  };
-
-  const sendMessage = () => {
-    if (!message) return;
-    const msgData: ChatMessage = { message, author: username, time: getCurrentTime() };
-    socket.emit("send_message", msgData);
-    setMessage("");
-    inputRef.current?.focus();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -119,6 +99,40 @@ export default function Home() {
     setIsAtBottom(atBottom); // dùng state để biết user đang ở cuối hay không
   };
 
+  //ham dung doc tin nhan
+  const stopSpeaking = () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingMessage(null);
+  };
+
+  // Hàm đọc tin nhắn
+  const speakMessage = (text: string) => {
+    // Nếu click lại tin nhắn đang đọc → dừng
+    if (speakingMessage === text) {
+      stopSpeaking();
+      return;
+    }
+
+    stopSpeaking(); // dừng tin nhắn cũ trước
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const viVoice = voices.find(v => v.lang === "vi-VN" || v.name.includes("Vietnamese"));
+    if (viVoice) utterance.voice = viVoice;
+
+    utterance.rate = 1.5;
+    utterance.pitch = 1;
+
+    // Khi đọc xong → reset speakingMessage để icon loa tắt
+    utterance.onend = () => setSpeakingMessage(null);
+
+    window.speechSynthesis.speak(utterance);
+    setSpeakingMessage(text);
+  };
+
+  //scroll xuong new chat
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   useEffect(() => {
@@ -129,7 +143,6 @@ export default function Home() {
       });
     }
   }, [chat]);
-
 
   if (!joined) {
     //home
@@ -383,7 +396,7 @@ export default function Home() {
                   )
                 )}
 
-
+                {/* chat */}
                 <div style={{
                   background: isMe ? "#4f46e5" : "#e5e7eb",
                   color: isMe ? "white" : "black",
@@ -394,7 +407,21 @@ export default function Home() {
                   fontSize: "clamp(12px, 2.5vw, 14px)",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
                 }}>
-                  <div>{msg.message}</div>
+                  <div>
+                    {msg.message}
+                    <button
+                      onClick={() => speakMessage(msg.message)}
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        marginLeft: '2px'
+                      }}
+                      title="Nghe tin nhắn"
+                    >
+                      {speakingMessage === msg.message ? "🔊" : "🔈"}
+                    </button>
+                  </div>
                   <div style={{ fontSize: 10, marginTop: 4 }}>
                     {msg.time}
                   </div>
