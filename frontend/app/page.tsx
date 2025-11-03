@@ -301,7 +301,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#fff" }}
-          >+ thêm người chat</Link>
+          >+ thêm người chat, click me!</Link>
         </div>
 
 
