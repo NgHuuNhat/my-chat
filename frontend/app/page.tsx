@@ -273,8 +273,7 @@ export default function Home() {
           color: "white"
         }}>
           <div style={{ textAlign: 'center' }}>
-            <span>Hello, <b>{username}</b>!</span>
-            {/* {`Hello, ${username}!`} */}
+            <b>Hello, {username}!</b>
           </div>
           <div style={{ display: "inline-flex", }}>
             <img
