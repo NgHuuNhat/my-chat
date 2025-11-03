@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import Link from "next/link";
 
 interface ChatMessage {
   message: string;
@@ -17,7 +18,8 @@ export default function Home() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [joined, setJoined] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
-  const [height, setHeight] = useState("100dvh");
+  // const [height, setHeight] = useState("100dvh");
+  const [botOnline, setBotOnline] = useState(false);
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,32 +27,52 @@ export default function Home() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const NEXT_PUBLIC_SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+  const NEXT_PUBLIC_FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+  const robotAvatar = "https://cdn-icons-png.flaticon.com/512/4712/4712100.png";
+
   // console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
 
-  useEffect(() => {
-    const updateHeight = () => {
-      setHeight(`${window.innerHeight}px`);
-    };
+  // useEffect(() => {
+  //   const updateHeight = () => {
+  //     setHeight(`${window.innerHeight}px`);
+  //   };
 
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
+  //   updateHeight();
+  //   window.addEventListener("resize", updateHeight);
+  //   return () => window.removeEventListener("resize", updateHeight);
+  // }, []);
 
   useEffect(() => {
     if (!joined) usernameRef.current?.focus();
   }, [joined]);
 
+  // useEffect(() => {
+  //   console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
+  //   socket = io(NEXT_PUBLIC_SOCKET_URL!);
+
+  //   socket.on("receive_message", (data: ChatMessage) => {
+  //     setChat(prev => [...prev, data]);
+  //   });
+
+  //   return () => {
+  //     socket.off("receive_message");
+  //   };
+  // }, []);
+
   useEffect(() => {
-    console.log('NEXT_PUBLIC_SOCKET_URL', NEXT_PUBLIC_SOCKET_URL)
-    socket = io(NEXT_PUBLIC_SOCKET_URL!);
+    console.log("NEXT_PUBLIC_SOCKET_URL", NEXT_PUBLIC_SOCKET_URL);
+
+    socket = io(NEXT_PUBLIC_SOCKET_URL!, {
+      transports: ["websocket"], // ✅ fix polling error
+    });
 
     socket.on("receive_message", (data: ChatMessage) => {
-      setChat(prev => [...prev, data]);
+      if (data.author === "Bot") setBotOnline(true);
+      setChat((prev) => [...prev, data]);
     });
 
     return () => {
-      socket.off("receive_message");
+      socket.disconnect();
     };
   }, []);
 
@@ -217,6 +239,71 @@ export default function Home() {
         }}>
           Chat App
         </div>
+        {/* Bot status pill */}
+        <div style={{
+          padding: "6px 12px",
+          margin: "6px auto",
+          borderRadius: 9999,
+          fontSize: 12,
+          fontWeight: 500,
+          display: "inline-flex",
+          gap: 6,
+          alignItems: "center",
+          background: botOnline ? "#10b981" : "#6b7280",
+          color: "white"
+        }}>
+          {botOnline ? (
+            <>
+              <img
+                src={robotAvatar}
+                alt="bot avatar"
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  background: "#fff",
+                }}
+              />
+              <span>
+                <b>Bot</b> đang online - thêm từ <b style={{ color: "yellow" }}>bot</b> trong tin nhắn để chat với <b>Bot</b>
+              </span>
+            </>
+          ) : (
+            <>
+              <img
+                src={robotAvatar}
+                alt="bot avatar"
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  background: "#fff",
+                }}
+              />
+              <span>
+                <b>Bot</b> đang offline - nhắn <b style={{ color: "yellow" }}>bot</b> để gọi <b>Bot</b>
+              </span>
+            </>
+          )}
+        </div>
+
+        <div style={{
+          textAlign: "center",
+          marginBottom: 6,
+          fontSize: 11,
+          color: "#f1f5f9",
+          opacity: 0.8
+        }}>
+          <Link
+            href={NEXT_PUBLIC_FRONTEND_URL || "https://localhost:3000"}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#fff" }}
+          >+ thêm người chat</Link>
+        </div>
+
 
         {/* Chat messages */}
         <div
@@ -234,6 +321,7 @@ export default function Home() {
         >
           {chat.map((msg, i) => {
             const isMe = msg.author === username;
+            const isBot = msg.author === "Bot";
             return (
               <div
                 key={i}
@@ -244,23 +332,45 @@ export default function Home() {
                   marginBottom: 16,
                 }}
               >
-                {!isMe && (
-                  <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    backgroundColor: "#ff6b81",
-                    color: "black",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontWeight: "bold",
-                    marginRight: 8,
-                    fontSize: 12,
-                  }}>
-                    {msg.author[0].toUpperCase()}
-                  </div>
+                {isBot ? (
+                  <img
+                    src={isBot && robotAvatar} // avatar user default
+                    alt="avatar"
+                    style={{
+                      objectFit: "cover",
+                      background: "#fff",
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      color: "black",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                      marginRight: 8,
+                      fontSize: 12,
+                    }}
+                  />
+                ) : (
+                  !isMe && (
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      backgroundColor: "#ff6b81",
+                      color: "black",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                      marginRight: 8,
+                      fontSize: 12,
+                    }}>
+                      {msg.author[0].toUpperCase()}
+                    </div>
+                  )
                 )}
+
 
                 <div style={{
                   background: isMe ? "#4f46e5" : "#e5e7eb",
